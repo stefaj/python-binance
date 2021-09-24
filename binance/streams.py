@@ -757,6 +757,48 @@ class BinanceSocketManager:
         """
         return self._get_socket(symbol.lower() + '@ticker')
 
+    def symbol_liquidations_futures_socket(self, symbol: str, futures_type: FuturesType = FuturesType.USD_M):
+        """Start a websocket for a symbol's liquidation orders
+
+       https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#individual-symbol-ticker-stream://binance-docs.github.io/apidocs/futures/en/#liquidation-order-streams 
+
+        :param symbol: required
+        :type symbol: str
+
+        :returns: connection key string if successful, False otherwise
+
+        Message Format
+
+        .. code-block:: python
+
+            {
+            
+                "e":"forceOrder",                   // Event Type
+                "E":1568014460893,                  // Event Time
+                "o":{
+            
+                    "s":"BTCUSDT",                   // Symbol
+                    "S":"SELL",                      // Side
+                    "o":"LIMIT",                     // Order Type
+                    "f":"IOC",                       // Time in Force
+                    "q":"0.014",                     // Original Quantity
+                    "p":"9910",                      // Price
+                    "ap":"9910",                     // Average Price
+                    "X":"FILLED",                    // Order Status
+                    "l":"0.014",                     // Order Last Filled Quantity
+                    "z":"0.014",                     // Order Filled Accumulated Quantity
+                    "T":1568014460893,              // Order Trade Time
+            
+                }
+            
+            }
+
+
+        """
+        return self._get_futures_socket(symbol.lower() + '@forceOrder', futures_type=futures_type)
+
+
+
     def ticker_socket(self):
         """Start a websocket for all ticker data
 
@@ -1342,6 +1384,18 @@ class ThreadedWebsocketManager(ThreadedApiManager):
         return self._start_async_socket(
             callback=callback,
             socket_name='symbol_ticker_futures_socket',
+            params={
+                'symbol': symbol,
+                'futures_type': futures_type
+            }
+        )
+
+    def start_symbol_liquidations_futures_socket(
+        self, callback: Callable, symbol: str, futures_type: FuturesType = FuturesType.USD_M
+    ) -> str:
+        return self._start_async_socket(
+            callback=callback,
+            socket_name='symbol_liquidations_futures_socket',
             params={
                 'symbol': symbol,
                 'futures_type': futures_type
