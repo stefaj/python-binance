@@ -59,7 +59,7 @@ class ReconnectingWebsocket:
         self._socket = None
         self.ws: Optional[ws.WebSocketClientProtocol] = None
         self.ws_state = WSListenerState.INITIALISING
-        self._queue = asyncio.Queue(loop=self._loop)
+        self._queue = asyncio.Queue() # TODO (loop=self._loop)
         self._handle_read_loop = None
 
     async def __aenter__(self):
